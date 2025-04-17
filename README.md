@@ -5,3 +5,7 @@
 - заменяет три точки `...` на многоточние `…`
 - заменет `--` на `—` 
 - форматирует markdown для ficbook и telegraph
+
+# Credits
+
+- https://github.com/markedjs/marked
