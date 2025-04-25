@@ -251,6 +251,14 @@
       function formatText(text) {
         text = text.replace(/\.{3}/g, '…');
         text = text.replace(/(^|[^-])--(?=\s|$)/g, '$1—');
+        // Добавляем <br> до и после строки с ───, только если они не идут после пустой строки
+        text = text.replace(/([^\n])\n(───+)/g, '$1<br>\n$2');   // до ───
+        text = text.replace(/(───+)\n([^\n])/g, '$1\n<br>$2');   // после ───
+        // Затем — вставляем <br> только туда, где нет "───" и "— " (реплики)
+        text = text.replace(/([^\n-])\n(?!\n|-|───)/g, '$1<br>\n');
+
+
+
 
         const divider = dividerInput.value || '─── ⊹⊱✿⊰⊹ ───';
         text = text.replace(/^---$/gm, `\n\n${divider}\n\n`);
@@ -265,6 +273,7 @@
             result += text[i];
           }
         }
+
         return result;
       }
 
