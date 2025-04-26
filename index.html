@@ -289,8 +289,8 @@
         const text = input.value;
         const words = text.trim().split(/\s+/).filter(w => w.length > 0).length;
         const minutes = Math.ceil(words / 250) || 0;
-        const pages = Math.max(1, Math.round(words / 500)); // Округление числа страниц
-        document.getElementById('reading-time').textContent = `⏱ Время чтения: ~${minutes} мин · ${pages} стр.`;
+        const pages = Math.max(1, Math.round(words / 300)); // Округление числа страниц. 300 слов на страницу - А5 формат.
+        document.getElementById('reading-time').innerHTML = `⏱ Время чтения: ~${minutes} мин · <span title="Формат А5. 300 слов на страницу">${pages} стр.</span>`;
       }
 
 
