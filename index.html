@@ -354,10 +354,10 @@
         const text = input.value;
         const words = text.trim().split(/\s+/).filter(w => w.length > 0).length;
         const minutes = Math.ceil(words / 250) || 0;
-        const pagesFicbook = Math.max(1, Math.round(words / 390));  // 390 слов на страницу Фикбука (примерно)
+        const pagesFicbook = Math.max(1, Math.round(words / 380));  // 380 слов на страницу Фикбука (примерно)
         const pagesA5 = Math.max(1, Math.round(words / 300));  // 300 слов на страницу А5
         document.getElementById('reading-time').innerHTML = `⏱ Время чтения: ~${minutes} мин · <span class="tooltip">${pagesFicbook} стр.<span class="tooltiptext">
-          Фикбук: ${pagesFicbook} стр. (390 слов на 1 стр.)\n
+          Фикбук: ${pagesFicbook} стр. (380 слов на 1 стр.)\n
           Книга А5: ${pagesA5} стр. (300 слов на 1 стр.)</span></span>`;
       }
 
