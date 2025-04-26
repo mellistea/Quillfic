@@ -283,7 +283,7 @@
         <!-- <button onclick="copyTelegra()">📃Telegra.ph</button> // Вроде получилось сделать всё через одну кнопку - эту пока выключим -->
         <button onclick="copyFicbook()" class="tooltip">📃Копировать
           <span class="tooltiptext">
-            Подходит для Фикбука, Telegra.ph, Фанфикуса, Wattpad и HoYoLAB<br>
+            Проверено на Фикбуке, Telegra.ph, Фанфикусе, Wattpad и HoYoLAB<br>
             При вставке на Фикбук надо в редакторе нажать кнопку "удалить лишние пробелы"</span>
         </button>
       </div>
@@ -355,16 +355,44 @@
       }
 
       function updateReadingTime() {
-        const text = input.value;
-        const words = text.trim().split(/\s+/).filter(w => w.length > 0).length;
-        const minutes = Math.ceil(words / 250) || 0;
-        const pagesFicbook = Math.max(1, Math.round(words / 380));  // 380 слов на страницу Фикбука (примерно)
-        const pagesA5 = Math.max(1, Math.round(words / 300));  // 300 слов на страницу А5
-        document.getElementById('reading-time').innerHTML = `⏱ Время чтения: ~${minutes} мин · <span class="tooltip">${pagesFicbook} стр.<span class="tooltiptext">
-          Фикбук: ${pagesFicbook} стр. (380 слов на 1 стр.)\n
-          Книга А5: ${pagesA5} стр. (300 слов на 1 стр.)</span></span>`;
-      }
+  const divider = dividerInput.value.trim();
+  
+  // Получаем текст из форматированного блока
+  let text = formatted.innerText || '';
+  
+  // Убираем разделители из текста
+  if (divider) {
+    const escapedDivider = divider.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const dividerRegex = new RegExp(escapedDivider, 'g');
+    text = text.replace(dividerRegex, '');
+  }
 
+  const cleanedText = text.trim();
+  const words = cleanedText.split(/\s+/).filter(w => w.length > 0).length;
+  const characters = cleanedText.replace(/\s+/g, '').length;
+  const wordsFormatted = words.toLocaleString('ru-RU');
+  const charactersFormatted = characters.toLocaleString('ru-RU');
+
+
+  const minutes = Math.ceil(words / 250) || 0;
+  const pagesFicbook = Math.max(1, Math.round(words / 380)); // Фикбук
+  const pagesA5 = Math.max(1, Math.round(words / 300)); // Книга А5
+
+  document.getElementById('reading-time').innerHTML = `
+    ⏱ Время чтения: ~${minutes} мин · 
+    <span class="tooltip">${pagesFicbook} стр.
+      <span class="tooltiptext">
+        Фикбук: ${pagesFicbook} стр. (380 слов на стр.)
+        Книга А5: ${pagesA5} стр. (300 слов на стр.)
+
+        ─── ⊹⊱✿⊰⊹ ───
+
+        Слов: ${wordsFormatted}; Символов: ${charactersFormatted} 
+        Без учёта разделителей
+      </span>
+    </span>
+  `;
+}
 
       function autoResizeInput() {
         const tmp = document.createElement('span');
