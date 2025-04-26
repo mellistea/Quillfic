@@ -274,15 +274,17 @@
 
     <div class="copy-controls">
       <div class="tooltip" style="display: inline-block;">
-      <input id="dividerInput" placeholder="Разделитель" />
-      <span class="tooltiptext">
-        Заменяет "---" на введённый здесь текст
-      </span></div>
+        <input id="dividerInput" placeholder="Разделитель" />
+        <span class="tooltiptext">
+          Заменяет "---" на введённый здесь текст
+        </span>
+      </div>
       <div class="copy-buttons">
-        <button onclick="copyTelegra()">📃Telegra.ph</button>
-        <button onclick="copyFicbook()" class="tooltip">📃Фикбук
+        <!-- <button onclick="copyTelegra()">📃Telegra.ph</button> // Вроде получилось сделать всё через одну кнопку - эту пока выключим -->
+        <button onclick="copyFicbook()" class="tooltip">📃Копировать
           <span class="tooltiptext">
-            Ещё подходит для Фанфикус, Wattpad и HoYoLAB</span>
+            Подходит для Фикбука, Telegra.ph, Фанфикуса, Wattpad и HoYoLAB<br>
+            При вставке на Фикбук надо в редакторе нажать кнопку "удалить лишние пробелы"</span>
         </button>
       </div>
     </div>
@@ -454,16 +456,23 @@
           toast.classList.remove('show');
         }, 2000);
       }
-
       function copyTelegra() {
         const clone = formatted.cloneNode(true);
         const blocks = clone.querySelectorAll('p, h1, h2, h3, li');
+
         blocks.forEach((el, index) => {
           if (index < blocks.length - 1) {
             const spacer = document.createElement('div');
             spacer.innerHTML = '&nbsp;';
             el.parentNode.insertBefore(spacer, el.nextSibling);
           }
+        });
+
+        // Удаление лишних пробелов после переносов
+        clone.querySelectorAll('p').forEach(p => {
+          p.innerHTML = p.innerHTML
+            .replace(/\n\s+/g, '\n')    // после обычных переносов
+            .replace(/<br>\s+/g, '<br>'); // после <br>
         });
 
         const html = clone.innerHTML;
@@ -479,11 +488,19 @@
       function copyFicbook() {
         const clone = formatted.cloneNode(true);
         const blocks = clone.querySelectorAll('p, li, h1, h2, h3');
+
         blocks.forEach((el, index) => {
           if (index < blocks.length - 1) {
             const br = document.createElement('br');
             el.after(br);
           }
+        });
+
+        // Удаление лишних пробелов после переносов
+        clone.querySelectorAll('p').forEach(p => {
+          p.innerHTML = p.innerHTML
+            .replace(/\n\s+/g, '\n')    // после обычных переносов
+            .replace(/<br>\s+/g, '<br>'); // после <br>
         });
 
         const html = clone.innerHTML;
@@ -495,6 +512,7 @@
           .then(() => showToast('Скопировано для Ficbook'))
           .catch(() => showToast('Ошибка копирования'));
       }
+
       document.querySelectorAll('.tooltip').forEach(tooltip => {
         const tooltipText = tooltip.querySelector('.tooltiptext');
 
