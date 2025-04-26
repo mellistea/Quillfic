@@ -271,7 +271,11 @@
     </div>
 
     <div class="copy-controls">
-      <input id="dividerInput" placeholder="Разделитель" title="Замена разделителей" />
+      <div class="tooltip" style="display: inline-block;">
+      <input id="dividerInput" placeholder="Разделитель" />
+      <span class="tooltiptext">
+        Заменяет "---" на введённый здесь текст
+      </span></div>
       <div class="copy-buttons">
         <button onclick="copyTelegra()">📃Telegra.ph</button>
         <button onclick="copyFicbook()" class="tooltip">📃Фикбук
