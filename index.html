@@ -286,12 +286,13 @@
       }
 
       function updateReadingTime() {
-        const text = input.value.trim();
-        const wordCount = text.split(/\s+/).filter(w => w.length > 0).length;
-        const minutes = Math.max(1, Math.ceil(wordCount / 250));
-        const timeElement = document.getElementById('reading-time');
-        timeElement.textContent = `⏱ Время чтения: ~${minutes} мин`;
+        const text = input.value;
+        const words = text.trim().split(/\s+/).filter(w => w.length > 0).length;
+        const minutes = Math.ceil(words / 250) || 0;
+        const pages = Math.max(1, Math.round(words / 500)); // Округление числа страниц
+        document.getElementById('reading-time').textContent = `⏱ Время чтения: ~${minutes} мин · ${pages} стр.`;
       }
+
 
       function autoResizeInput() {
         const tmp = document.createElement('span');
