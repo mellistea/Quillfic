@@ -187,6 +187,18 @@
       text-align: left !important;
     }
 
+    #reading-time {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 14px;
+      opacity: 1;
+      /* было 0.8 */
+      color: rgba(240, 240, 240, 0.8);
+      /* вместо opacity */
+    }
+
+
     .tooltip {
       position: relative;
       cursor: help;
@@ -194,11 +206,16 @@
 
     .tooltip .tooltiptext {
       visibility: hidden;
-      width: 250px;
+      width: max-content;
+      min-width: 250px;
+      max-width: 500px;
       background-color: #333;
       color: #fff;
       text-align: left;
-      padding: 8px;
+      padding-top: 2px;
+      padding-left: 15px;
+      padding-right: 15px;
+      padding-bottom: 15px;
       border-radius: 6px;
       position: absolute;
       z-index: 1;
@@ -209,12 +226,20 @@
       opacity: 0;
       transition: opacity 0.3s;
       white-space: pre-line;
-      /* Вот здесь разрешаем переносы строк */
+      /* разрешаем переносы строк */
+      box-sizing: border-box;
+      filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.3));
+      /* добавляем отдельный слой через фильтр или перспективу */
+      will-change: transform;
+      font-size: 14px;
+      font-family: Georgia, 'Times New Roman', serif;
     }
 
     .tooltip:hover .tooltiptext {
       visibility: visible;
       opacity: 1;
+      left: 50%;
+      transform: translateX(-50%);
     }
   </style>
 </head>
@@ -223,8 +248,12 @@
   <header
     style="display: flex; align-items: center; justify-content: space-between; padding: 12px 24px; border-bottom: 1px solid #333; background-color: rgba(20, 20, 20, 0.95); position: fixed; top: 0; left: 0; right: 0; z-index: 100;">
     <div style="display: flex; align-items: center; gap: 24px;">
-      <h1 title="**жирный** — двойные звёздочки, _курсив_ — одиночные подчёркивания" style="cursor: help; margin: 0;">
-        Quillfic</h1>
+      <h1 id="site-title" class="tooltip" style="cursor: help; margin: 0;">
+        Quillfic
+        <span class="tooltiptext">
+          **жирный** — двойные **звёздочки**<br>
+          _курсив_ — одиночные _подчёркивания_ или *звёздочки*</span>
+      </h1>
 
       <div style="position: absolute; left: 25%; top: 12px; transform: translateX(-50%);">
         <div class="format-buttons">
@@ -237,8 +266,7 @@
 
 
 
-    <div id="reading-time"
-      style="position: absolute; left: 50%; transform: translateX(-50%); font-size: 14px; opacity: 0.8;">
+    <div id="reading-time">
       ⏱ Время чтения: ~0 мин
     </div>
 
@@ -246,7 +274,10 @@
       <input id="dividerInput" placeholder="Разделитель" title="Замена разделителей" />
       <div class="copy-buttons">
         <button onclick="copyTelegra()">📃Telegra.ph</button>
-        <button onclick="copyFicbook()" title="а ещё Фанфикус/Wattpad/HoYoLAB">📃Фикбук</button>
+        <button onclick="copyFicbook()" class="tooltip">📃Фикбук
+          <span class="tooltiptext">
+            Ещё подходит для Фанфикус, Wattpad и HoYoLAB</span>
+        </button>
       </div>
     </div>
   </header>
@@ -365,8 +396,6 @@
         updateFormatted();
       }
 
-
-
       input.addEventListener('input', updateFormatted);
 
       // 🔥 Горячие клавиши Ctrl+B и Ctrl+I
@@ -380,7 +409,6 @@
           applyFormatting('italic');
         }
       });
-
 
       dividerInput.addEventListener('input', () => {
         localStorage.setItem('dividerText', dividerInput.value);
@@ -461,6 +489,48 @@
           .then(() => showToast('Скопировано для Ficbook'))
           .catch(() => showToast('Ошибка копирования'));
       }
+      document.querySelectorAll('.tooltip').forEach(tooltip => {
+        const tooltipText = tooltip.querySelector('.tooltiptext');
+
+        tooltip.addEventListener('mouseenter', () => {
+          if (!tooltipText) return;
+
+          tooltipText.style.opacity = '0';
+          tooltipText.style.pointerEvents = 'none';
+          tooltip.classList.add('show'); // показываем, чтобы можно было измерить размер
+
+          requestAnimationFrame(() => {
+            const rect = tooltipText.getBoundingClientRect();
+            const overflowRight = rect.right > window.innerWidth - 10;
+            const overflowLeft = rect.left < 10;
+
+            if (overflowRight) {
+              tooltipText.style.left = 'auto';
+              tooltipText.style.right = '0';
+              tooltipText.style.transform = 'none';
+            } else if (overflowLeft) {
+              tooltipText.style.left = '0';
+              tooltipText.style.right = 'auto';
+              tooltipText.style.transform = 'none';
+            } else {
+              tooltipText.style.left = '50%';
+              tooltipText.style.right = 'auto';
+              tooltipText.style.transform = 'translateX(-50%)';
+            }
+
+            tooltipText.style.opacity = '';
+            tooltipText.style.pointerEvents = '';
+          });
+        });
+
+        tooltip.addEventListener('mouseleave', () => {
+          tooltip.classList.remove('show');
+          tooltipText.style.left = '50%';
+          tooltipText.style.right = 'auto';
+          tooltipText.style.transform = 'translateX(-50%)';
+        });
+      });
+
   </script>
 
 </body>
