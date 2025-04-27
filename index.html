@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Quillfic</title>
+    <title>Quillfic ─ издание</title>
     <style>
         body {
           margin: 0;
@@ -237,19 +237,88 @@
           left: 50%;
           transform: translateX(-50%);
         }
+
+        
+/* Маленький текст-ссылка справа от заголовка */
+.header-subtext {
+  font-size: 12px;
+  font-weight: normal;
+  margin-left: 8px;
+  color: #aaa;
+  text-decoration: none;
+}
+
+.header-subtext:hover {
+  color: #ccc;
+  text-decoration: none; /* ОСТАЁТСЯ без подчёркивания при наведении */
+}
+.header-subtext.normal {
+  color: inherit; /* Цвет как у родителя (Quillfic) */
+  font-size: 12px; /* Размер такой же, как у ссылки */
+  font-weight: normal;
+  margin-left: 4px;
+}
+header {
+  height: 58px; /* фиксируем высоту */
+  min-height: 58px; /* вдруг понадобится */
+  max-height: 58px; /* гарантируем что не растянется */
+  padding: 0 24px; /* теперь паддинг только по горизонтали */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: rgba(20, 20, 20, 0.95);
+  border-bottom: 1px solid #333;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  box-sizing: border-box; /* обязательно! */
+}
+main {
+  margin-top: 58px;
+}
+.header-small {
+  font-size: 12px;
+  font-weight: normal;
+  margin-left: 8px;
+  color: #f0f0f0; /* Как у заголовка */
+}
+
+.header-subtext {
+  font-size: 12px;
+  font-weight: normal;
+  margin-left: 4px;
+  color: #aaa;
+  text-decoration: none;
+}
+
+.header-subtext:hover {
+  color: #ccc;
+  text-decoration: none;
+}
+header h1 {
+  font-size: 24px;
+  margin: 0;
+  font-weight: normal;
+  letter-spacing: 1px;
+  color: #f0f0f0; /* цвет для единообразия */
+}
+
     </style>
 </head>
 
 <body>
-    <header style="display: flex; align-items: center; justify-content: space-between; padding: 12px 24px; border-bottom: 1px solid #333; background-color: rgba(20, 20, 20, 0.95); position: fixed; top: 0; left: 0; right: 0; z-index: 100;">
+    <header>
         <div style="display: flex; align-items: center; gap: 24px;">
-            <h1 id="site-title" class="tooltip" style="cursor: help; margin: 0;">
-                Quillfic
+            <h1 id="site-title" style="cursor: help; margin: 0;">
+              <span class="tooltip">Quillfic<span class="header-small">, издание</span>
                 <span class="tooltiptext">
           жирный текст — двойные **звёздочки**<br>
           курсив — одиночные _подчёркивания_ или *звёздочки*<br>
           тире — два дефиса "--"<br>
-          разделитель — три дефиса "---", отделённые пустыми строками</span>
+          разделитель — три дефиса "---", отделённые пустыми строками</span></span>
+          <a href="https://mellistea.github.io/Quillfic/Editor" target="_blank" class="header-subtext"> — к рукописи</a>
             </h1>
 
             <div style="position: absolute; left: 25%; top: 12px; transform: translateX(-50%);">
@@ -485,7 +554,7 @@
             if (saved) {
               input.value = saved;
             } else {
-input.value = `Quillfic -- инструмент форматирования, чтобы удобно постить один и тот же текст на Telegra.ph и Фикбук _(а ещё Фанфикус/Wattpad/HoYoLAB)_. Оформляет **жирный текст**, *курсив*, заменет "кавычки" на «ёлочки», два дефиса -- заменяет на тире, разделитель "---" -- на другой из окошка в правом верхнем углу.
+input.value = `Quillfic -- инструмент форматирования, чтобы удобно постить один и тот же текст на Telegra.ph и Фикбук _(а ещё Фанфикус/Wattpad/HoYoLAB)_. Оформляет **жирный текст**, *курсив*, заменет "кавычки" на «ёлочки», два дефиса -- заменяет на тире, три точки "..." на символ многоточия "…", разделитель "---" -- на другой из окошка в правом верхнем углу.
 
 **Полученный текст можно удобно вставить на Фикбук и Telegra.ph, не подправляя вручную форматирование. При вставке на Фикбук в редакторе надо нажать "удалить лишние пробелы".** 
 
