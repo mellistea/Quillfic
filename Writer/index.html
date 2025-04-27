@@ -694,7 +694,12 @@ header h1 {
   top: 50%;
   transform: translate(-50%, -50%);
 }
-
+/* Когда мышка наводится на ссылку внутри CodeMirror */
+.cm-link {
+  cursor: pointer;
+  text-decoration: underline; /* если хочешь подчеркнутый эффект */
+  color: #80bfff; /* мягкий голубой оттенок для ссылок, можно поменять */
+}
 
 
   </style>
@@ -1239,8 +1244,46 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 });
-</script>
 
+</script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const editors = [editor1Instance, editor2Instance, editor3Instance];
+  
+    editors.forEach(editor => {
+      const cm = editor.codemirror;
+      const wrapper = cm.getWrapperElement();
+  
+      // Клик по ссылке
+      wrapper.addEventListener('click', function(event) {
+        const target = event.target;
+        if (target && target.classList.contains('cm-link')) {
+          const url = target.innerText.trim();
+          if (url.startsWith('http://') || url.startsWith('https://')) {
+            window.open(url, '_blank');
+            event.preventDefault();
+          }
+        }
+      });
+  
+      // Наведение на ссылку
+      wrapper.addEventListener('mousemove', function(event) {
+        const target = event.target;
+        if (target && target.classList.contains('cm-link')) {
+          wrapper.style.cursor = 'pointer';
+        } else {
+          wrapper.style.cursor = '';
+        }
+      });
+  
+      // Когда мышь уходит
+      wrapper.addEventListener('mouseleave', function() {
+        wrapper.style.cursor = '';
+      });
+    });
+  });
+  </script>
+  
   
   
       
