@@ -610,6 +610,84 @@ header h1 {
   letter-spacing: 1px;
   color: #f0f0f0; /* цвет для единообразия */
 }
+/* Центр в шапке — часы */
+.header-center {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.clock {
+  font-size: 18px;
+  color: #888;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* Кнопки справа */
+.header-buttons {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header-buttons button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+}
+
+.header-buttons button svg {
+  width: 20px;
+  height: 20px;
+  stroke: #aaa;
+  transition: stroke 0.3s;
+}
+
+.header-buttons button:hover svg {
+  stroke: #ccc;
+}
+.notification-bar {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  background-color: #333;
+  color: #f0f0f0;
+  text-align: center;
+  padding: 12px 20px;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 16px;
+  z-index: 999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.notification-close {
+  margin-left: 20px;
+  font-size: 20px;
+  cursor: pointer;
+  color: #aaa;
+}
+
+.notification-close:hover {
+  color: #fff;
+}
+
+#reminder {
+  position: absolute;
+  top: 50%;
+  left: 66%;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  color: #777;
+  font-size: 16px;
+  white-space: nowrap;
+}
 
 
   </style>
@@ -618,10 +696,36 @@ header h1 {
 
 <body>
 
-<header>
-    <h1>Quillfic<span class="header-small">, рукопись</span><a href="https://mellistea.github.io/Quillfic/Polisher" target="_blank" class="header-subtext"> — к изданию</a></h1>
-
-</header>
+  <header>
+    <h1>Quillfic<span class="header-ru">, рукопись</span><a href="https://mellistea.github.io/Quillfic/Polisher" target="_blank" class="header-subtext"> — к изданию</a></h1>
+  
+    <div class="header-center">
+      <div id="clock" class="clock"></div>
+    </div>
+    <div id="reminder">
+      Вы не сохранялись более 5 минут!
+    </div>
+    
+  
+    <div class="header-buttons">
+      <button id="saveBtn" title="Сохранить">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+          <polyline points="17 21 17 13 7 13 7 21"></polyline>
+          <polyline points="7 3 7 8 15 8"></polyline>
+        </svg>
+      </button>
+      <button id="loadBtn" title="Загрузить">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M3 7a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+        </svg>
+      </button>
+      
+      <input type="file" id="fileInput" style="display: none;">
+    </div>
+  </header>
+  
+  
 
 <main>
   <div class="column" id="column1">
@@ -662,7 +766,7 @@ header h1 {
 <script>
     const defaultTexts = {
 quillwrite_editor1: `***Добро пожаловать в Quillfic — рукопись!***
-    
+
 Это простой редактор текста, разделённый на 3 части. Помогает одновременно держать перед глазами уже законченную часть, черновик для будущих строчек, и заметки насчёт фанфика.
     
 Как чистовик полностью закончен, можно перейти к "изданию" по кнопке возле названия, чтобы автоматически отполировать форматирование - всякие кавычки-ёлочки, тире, многоточия и скопировать пост, который можно будет сразу вставить на Фикбук, Telegra.ph, Фанфикус, Ваттпад, Хойолаб или ещё куда.
@@ -772,20 +876,18 @@ https://genshin-impact.fandom.com/wiki/Yae_Publishing_House
       });
     
       if (id === 'editor1') {
-  editor1Instance = easyMDE; // сохраняем отдельно экземпляр для чистовика
+  editor1Instance = easyMDE;
 
   const toolbar = document.querySelector('#' + id).parentElement.querySelector('.editor-toolbar');
   if (toolbar) {
     toolbar.style.display = 'flex';
     toolbar.style.alignItems = 'center';
 
-    // создаём контейнер для всех кнопок + вопроса
     const spacer = document.createElement('div');
-    spacer.style.marginLeft = 'auto'; // отправляем вправо
+    spacer.style.marginLeft = 'auto';
     spacer.style.display = 'flex';
     spacer.style.alignItems = 'center';
 
-    // создаём сам вопросик
     const tooltip = document.createElement('span');
     tooltip.className = 'tooltip';
     tooltip.innerHTML = `? 
@@ -797,9 +899,17 @@ https://genshin-impact.fandom.com/wiki/Yae_Publishing_House
       </span>`;
 
     spacer.appendChild(tooltip);
-    toolbar.appendChild(spacer); // добавляем в конец тулбара
+    toolbar.appendChild(spacer);
   }
 }
+if (id === 'editor2') {
+  editor2Instance = easyMDE;
+}
+if (id === 'editor3') {
+  editor3Instance = easyMDE;
+}
+
+
 
 
     
@@ -912,11 +1022,144 @@ https://genshin-impact.fandom.com/wiki/Yae_Publishing_House
 });
 
     </script>
-    
+    <script>
+let is24Hour = false;
+
+function updateClock() {
+  const now = new Date();
+  let hours = now.getHours();
+  let minutes = now.getMinutes();
+  let ampm = '';
+
+  if (!is24Hour) {
+    ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+  }
+
+  hours = hours.toString().padStart(2, '0');
+  minutes = minutes.toString().padStart(2, '0');
+
+  document.getElementById('clock').textContent = is24Hour
+    ? `${hours}:${minutes}`
+    : `${hours}:${minutes} ${ampm}`;
+}
+
+setInterval(updateClock, 1000);
+updateClock();
+
+document.getElementById('clock').addEventListener('click', () => {
+  is24Hour = !is24Hour;
+  updateClock();
+});
+
+// Сохранение
+document.getElementById('saveBtn').addEventListener('click', function() {
+  const data = {
+    editor1: editor1Instance.value(),
+    editor2: editor2Instance.value(),
+    editor3: editor3Instance.value(),
+    title1: document.getElementById('title1').value,
+    title2: document.getElementById('title2').value,
+    title3: document.getElementById('title3').value,
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'quillfic_backup.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+});
+
+// Загрузка
+document.getElementById('loadBtn').addEventListener('click', function() {
+  document.getElementById('fileInput').click();
+});
+
+document.getElementById('fileInput').addEventListener('change', function(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (data.editor1 !== undefined) editor1Instance.value(data.editor1);
+      if (data.editor2 !== undefined) editor2Instance.value(data.editor2);
+      if (data.editor3 !== undefined) editor3Instance.value(data.editor3);
+      if (data.title1 !== undefined) document.getElementById('title1').value = data.title1;
+      if (data.title2 !== undefined) document.getElementById('title2').value = data.title2;
+      if (data.title3 !== undefined) document.getElementById('title3').value = data.title3;
+    } catch (err) {
+      alert('Ошибка при загрузке файла!');
+    }
+  };
+  reader.readAsText(file);
+});
+document.addEventListener('DOMContentLoaded', function() {
+  if (!localStorage.getItem('notificationShown')) {
+    document.getElementById('notification-bar').style.display = 'flex';
+  }
+
+  document.getElementById('close-notification').addEventListener('click', function() {
+    document.getElementById('notification-bar').style.display = 'none';
+    localStorage.setItem('notificationShown', 'true');
+  });
+});
+
+    </script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const reminder = document.getElementById('reminder');
+    const saveBtn = document.getElementById('saveBtn');
+  
+    let reminderInterval;
+    let pauseTimeout;
+    let initialTimeout;
+  
+    function startReminderCycle() {
+      reminderInterval = setInterval(() => {
+        reminder.style.opacity = '1';
+        setTimeout(() => {
+          reminder.style.opacity = '0';
+        }, 3500); // Плавное исчезновение через 3.5 секунды
+      }, 7000); // Каждые 7 секунд
+    }
+  
+    function stopReminderCycle() {
+      clearInterval(reminderInterval);
+      reminder.style.opacity = '0';
+    }
+  
+    function pauseReminderAfterSave() {
+      stopReminderCycle();
+      clearTimeout(pauseTimeout);
+      pauseTimeout = setTimeout(() => {
+        startReminderCycle();
+      }, 5 * 60 * 1000); // Пауза на 5 минут после сохранения
+    }
+  
+    saveBtn.addEventListener('click', pauseReminderAfterSave);
+  
+    // Старт только через 5 минут после загрузки страницы
+    initialTimeout = setTimeout(() => {
+      startReminderCycle();
+    }, 5 * 60 * 1000);
+  });
+  </script>
+  
+  
+      
     
 
     
   
-
+    <div id="notification-bar" class="notification-bar" style="display: none;">
+      <span>Весь прогресс сохраняется локально в кэше браузера. Чтобы ничего не потерять, сохраняйтесь кнопкой справа сверху.</span>
+      <span id="close-notification" class="notification-close">&times;</span>
+    </div>
+    
 </body>
 </html>
