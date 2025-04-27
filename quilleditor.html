@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Quillfic ─ рукопись</title>
+  <link rel="stylesheet" href="https://unpkg.com/easymde/dist/easymde.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+  <style>
+    /* Главное тело сайта */
+    body {
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      font-family: Georgia, 'Times New Roman', serif;
+      background-color: #1c1c1c;
+      color: #f0f0f0;
+    }
+  
+    /* Заголовок */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background-color: rgba(20, 20, 20, 0.95);
+      padding: 12px 24px;
+      border-bottom: 1px solid #333;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+    }
+  
+    header h1 {
+      font-size: 24px;
+      margin: 0;
+      font-weight: normal;
+      letter-spacing: 1px;
+    }
+  
+    main {
+      display: flex;
+      flex: 1;
+      height: calc(100vh - 58px);
+      margin-top: 58px;
+      overflow: hidden;
+    }
+  
+    .column {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 16px;
+      box-sizing: border-box;
+      overflow: hidden;
+    }
+  
+    .editor-header {
+      font-family: Georgia, 'Times New Roman', serif;
+      font-size: 24px;
+      font-weight: normal;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+      background: transparent;
+      border: none;
+      color: #f0f0f0;
+      text-align: center;
+      outline: none;
+      cursor: text;
+      caret-color: #f0f0f0;
+    }
+  
+    .editor-wrapper {
+      flex: 1;
+      overflow-y: auto;
+      background-color: #2b2b2b;
+      /* padding: 12px; */
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+    }
+  
+    /* Настоящий текст в редакторе */
+    .CodeMirror {
+      font-family: Georgia, 'Times New Roman', serif !important;
+      font-size: 18px !important;
+      line-height: 1.4 !important;
+      color: #f0f0f0;
+      background: #2b2b2b;
+    }
+  
+    .CodeMirror-lines {
+      padding: 0;
+    }
+  
+    .CodeMirror pre.CodeMirror-line, .CodeMirror-line {
+      font-family: inherit;
+      font-size: inherit;
+      line-height: inherit;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+  
+    /* Чекбоксы */
+    .cm-formatting-task {
+      font-size: 26px !important;
+      color: #bbb;
+      margin-right: 8px;
+    }
+  
+    .cm-task-list-item {
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+    }
+  
+    .cm-task-list-item.cm-task-checked .cm-formatting-task {
+      color: #29b056 !important;
+    }
+  
+    .cm-task-list-item.cm-task-checked {
+      color: #777 !important;
+      text-decoration: line-through;
+    }
+
+    /* Внутри отмеченной задачи */
+.cm-task-checked .cm-formatting-task {
+  color: #00cc66 !important; /* зелёный чекбокс */
+}
+
+/* Сам текст задачи */
+.cm-task-checked .cm-variable-2 {
+  color: #777 !important;
+  text-decoration: line-through;
+}
+
+  
+    /* Toolbar */
+    .editor-toolbar {
+        border-top: 0;
+        border-right: 0;
+        border-left: 0;
+        border-bottom: 1px solid #ced4da;;
+        position: sticky!important;
+  top: 0;
+  z-index: 10;
+  background-color: #2b2b2b; /* тот же фон, чтобы выглядело аккуратно */
+    }
+
+    .editor-toolbar button {
+      color: #aaa;
+    }
+    .editor-toolbar button.active, .editor-toolbar button:hover {
+      color: #ccc;
+      background: #333;
+    }
+  
+    .editor-statusbar {
+      color: rgba(240, 240, 240, 0.7);
+    }
+  
+    ::selection {
+      background: rgba(160, 160, 160, 0.4);
+      color: #000;
+    }
+  
+    input.editor-header::selection {
+      background: rgba(160, 160, 160, 0.4);
+      color: #000;
+    }
+  
+    .CodeMirror-cursor {
+      border-left: 2px solid #f0f0f0;
+    }
+  
+    .editor-wrapper::-webkit-scrollbar {
+      width: 8px;
+    }
+    .editor-wrapper::-webkit-scrollbar-track {
+      background: #2b2b2b;
+    }
+    .editor-wrapper::-webkit-scrollbar-thumb {
+      background-color: #555;
+      border-radius: 4px;
+    }
+
+    .EasyMDEContainer .CodeMirror {
+        border: 0;
+        /* height: 100%; */
+    }
+    .EasyMDEContainer {
+        height: 100%;
+    }
+
+    /* чекбокс зелёный при отметке */
+.cm-task-list-item.cm-task-checked span.cm-formatting-task {
+  color: #00cc66 !important;
+}
+
+/* зачёркнутый текст */
+.cm-task-list-item.cm-task-checked {
+  color: #777 !important;
+  text-decoration: line-through;
+}
+.editor-toolbar i.separator {
+    display: none;
+}
+
+/* Оформление превью (режима просмотра) */
+.editor-preview, .editor-preview-side {
+  background-color: #1c1c1c !important;
+  color: #f0f0f0 !important;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 18px;
+  line-height: 1.4;
+  padding: 30px;
+}
+
+/* Дополнительные элементы внутри превью */
+.editor-preview h1, .editor-preview h2, .editor-preview h3, .editor-preview p, .editor-preview ul, .editor-preview ol, .editor-preview li {
+  color: #f0f0f0 !important;
+}
+
+/* Стили для режима превью */
+.editor-preview, .editor-preview-side {
+  background-color: #1c1c1c !important;
+  color: #f0f0f0 !important;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 18px;
+  line-height: 1.4;
+  padding: 30px;
+  white-space: pre-wrap; /* вот это добавляем! */
+  word-break: break-word; /* и это */
+}
+
+/* И отдельно для параграфов и прочего в превью */
+.editor-preview p, 
+.editor-preview-side p,
+.editor-preview h1, 
+.editor-preview-side h1,
+.editor-preview h2, 
+.editor-preview-side h2,
+.editor-preview h3, 
+.editor-preview-side h3,
+.editor-preview ul, 
+.editor-preview-side ul,
+.editor-preview ol, 
+.editor-preview-side ol,
+.editor-preview li, 
+.editor-preview-side li,
+.editor-preview blockquote,
+.editor-preview-side blockquote {
+  color: #f0f0f0 !important;
+  background: transparent !important;
+  font-family: Georgia, 'Times New Roman', serif;
+}
+
+.EasyMDEContainer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.editor-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: #2b2b2b;
+  border-bottom: 1px solid #ced4da;
+}
+
+.CodeMirror {
+  flex: 1;
+  overflow-y: auto;
+}
+
+
+
+/* Настроить скроллбары для всех CodeMirror контейнеров */
+.CodeMirror-scroll::-webkit-scrollbar,
+.CodeMirror-vscrollbar::-webkit-scrollbar,
+.CodeMirror-hscrollbar::-webkit-scrollbar,
+.CodeMirror-scrollbar-filler::-webkit-scrollbar,
+.CodeMirror-gutters::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.CodeMirror-scroll::-webkit-scrollbar-track,
+.CodeMirror-vscrollbar::-webkit-scrollbar-track,
+.CodeMirror-hscrollbar::-webkit-scrollbar-track,
+.CodeMirror-scrollbar-filler::-webkit-scrollbar-track,
+.CodeMirror-gutters::-webkit-scrollbar-track {
+  background: #2b2b2b;
+}
+
+.CodeMirror-scroll::-webkit-scrollbar-thumb,
+.CodeMirror-vscrollbar::-webkit-scrollbar-thumb,
+.CodeMirror-hscrollbar::-webkit-scrollbar-thumb,
+.CodeMirror-scrollbar-filler::-webkit-scrollbar-thumb,
+.CodeMirror-gutters::-webkit-scrollbar-thumb {
+  background-color: #555;
+  border-radius: 4px;
+}
+
+.CodeMirror-scroll {
+ 
+ padding-bottom: 0;
+
+}
+
+.editor-preview, .editor-preview-side {
+    background-color: #2b2b2b !important;
+}
+
+/* Красивый скроллбар внутри превью */
+.editor-preview::-webkit-scrollbar,
+.editor-preview-side::-webkit-scrollbar {
+  width: 8px;
+}
+
+.editor-preview::-webkit-scrollbar-track,
+.editor-preview-side::-webkit-scrollbar-track {
+  background: #2b2b2b;
+}
+
+.editor-preview::-webkit-scrollbar-thumb,
+.editor-preview-side::-webkit-scrollbar-thumb {
+  background-color: #555;
+  border-radius: 4px;
+}
+
+/* Убираем лишние отступы в режиме превью */
+.editor-preview,
+.editor-preview-side {
+  padding: 16px !important; /* как в редакторе */
+  background-color: #2b2b2b !important;
+  color: #f0f0f0 !important;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 18px;
+  line-height: 1.4;
+  overflow-y: auto; /* обязательно прокрутка */
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Выделение текста в редакторе */
+.CodeMirror ::selection {
+  background: rgba(160, 160, 160, 0.4);
+  color: #000000; /* Чёрный текст при выделении */
+}
+
+.CodeMirror ::-moz-selection {
+  background: rgba(160, 160, 160, 0.4);
+  color: #000000; /* Для Firefox */
+}
+/* Реально нормальное выделение текста внутри CodeMirror */
+.CodeMirror-selected {
+  background: rgba(160, 160, 160, 0.4) !important;
+}
+
+.CodeMirror-selectedtext, 
+.CodeMirror-line::selection,
+.CodeMirror-line > span::selection,
+.CodeMirror-line > span > span::selection {
+  background: rgba(160, 160, 160, 0.4) !important;
+  color: #000000 !important; /* Чёрный текст при выделении */
+}
+
+.CodeMirror-line::-moz-selection,
+.CodeMirror-line > span::-moz-selection,
+.CodeMirror-line > span > span::-moz-selection {
+  background: rgba(160, 160, 160, 0.4) !important;
+  color: #000000 !important;
+}
+
+/* скрываем лишние кнопки в чистовике */
+#column1 .editor-toolbar button.ordered-list,
+#column1 .editor-toolbar button.unordered-list,
+#column1 .editor-toolbar button.heading {
+  display: none !important;
+}
+
+/* Маленький текст-ссылка справа от заголовка */
+.header-subtext {
+  font-size: 12px;
+  font-weight: normal;
+  margin-left: 8px;
+  color: #aaa;
+  text-decoration: none;
+}
+
+.header-subtext:hover {
+  color: #ccc;
+  text-decoration: none; /* ОСТАЁТСЯ без подчёркивания при наведении */
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.6);
+}
+
+.modal-content {
+  background-color: #2b2b2b;
+  color: #f0f0f0;
+  margin: 15% auto;
+  padding: 30px;
+  border: 1px solid #555;
+  width: 400px;
+  border-radius: 10px;
+  position: relative;
+  font-family: Georgia, 'Times New Roman', serif;
+  text-align: center;
+}
+
+.modal-content p {
+  margin-bottom: 20px;
+  font-size: 18px;
+  line-height: 1.4;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.modal-buttons button {
+  padding: 10px 20px;
+  font-family: inherit;
+  font-size: 16px;
+  background-color: #444;
+  color: #f0f0f0;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.modal-buttons button:hover {
+  background-color: #666;
+}
+
+.close-button {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  color: #aaa;
+  font-size: 24px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.close-button:hover {
+  color: #fff;
+}
+
+/* Заголовки внутри редактора */
+.CodeMirror .cm-header-1 {
+  font-size: 34px !important;
+  font-weight: bold;
+}
+
+.CodeMirror .cm-header-2 {
+  font-size: 28px !important;
+  font-weight: bold;
+}
+
+.CodeMirror .cm-header-3 {
+  font-size: 24px !important;
+  font-weight: bold;
+}
+
+.CodeMirror .cm-header-4 {
+  font-size: 20px !important;
+  font-weight: bold;
+}
+
+.CodeMirror .cm-header-5 {
+  font-size: 16px !important;
+  font-weight: bold;
+}
+
+.CodeMirror .cm-header-6 {
+  font-size: 14px !important;
+  font-weight: bold;
+}
+
+/* Красивые точки вместо дефисов для списков — аккуратный вариант */
+.CodeMirror .cm-variable-2:first-child::before {
+  content: "•"; /* жирная точка */
+  color: #ccc;
+  font-size: 20px;
+  display: inline-block;
+  width: 1em;
+  text-align: center;
+  margin-right: -6px; /* вовзращаем текст левее */
+  position: relative;
+  top: -1px;
+}
+
+/* Скрыть дефис */
+.CodeMirror .cm-variable-2:first-child {
+  color: transparent;
+}
+
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+  opacity: 1;
+}
+
+
+.editor-wrapper {
+  overflow-x: hidden;
+}
+.tooltip {
+  position: relative;
+  cursor: help;
+  margin-left: auto;
+  font-size: 18px;
+  font-weight: bold;
+  color: #aaa;
+  padding: 5px;
+}
+
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: max-content;
+  min-width: 250px;
+  max-width: 500px;
+  background-color: #333;
+  color: #fff;
+  text-align: left;
+  padding: 10px 15px;
+  border-radius: 6px;
+  position: fixed; /* !!! фиксируем к экрану */
+  z-index: 9999; /* чтобы не перекрывали */
+  top: 0; /* потом двигаем через JS */
+  left: 0;
+  opacity: 0;
+  transition: opacity 0.3s;
+  white-space: pre-line;
+  box-sizing: border-box;
+  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.3));
+  will-change: transform;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 14px;
+  pointer-events: none; /* чтобы не мешать мышке */
+}
+
+.header-subtext.normal {
+  color: inherit; /* Цвет как у родителя (Quillfic) */
+  font-size: 12px; /* Размер такой же, как у ссылки */
+  font-weight: normal;
+  margin-left: 4px;
+}
+header {
+  height: 58px; /* фиксируем высоту */
+  min-height: 58px; /* вдруг понадобится */
+  max-height: 58px; /* гарантируем что не растянется */
+  padding: 0 24px; /* теперь паддинг только по горизонтали */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: rgba(20, 20, 20, 0.95);
+  border-bottom: 1px solid #333;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  box-sizing: border-box; /* обязательно! */
+}
+main {
+  margin-top: 58px;
+}
+.header-small {
+  font-size: 12px;
+  font-weight: normal;
+  margin-left: 8px;
+  color: #f0f0f0; /* Как у заголовка */
+}
+
+.header-subtext {
+  font-size: 12px;
+  font-weight: normal;
+  margin-left: 4px;
+  color: #aaa;
+  text-decoration: none;
+}
+
+.header-subtext:hover {
+  color: #ccc;
+  text-decoration: none;
+}
+header h1 {
+  font-size: 24px;
+  margin: 0;
+  font-weight: normal;
+  letter-spacing: 1px;
+  color: #f0f0f0; /* цвет для единообразия */
+}
+
+
+  </style>
+  
+</head>
+
+<body>
+
+<header>
+    <h1>Quillfic<span class="header-small">, рукопись</span><a href="https://mellistea.github.io/Quillfic/Polisher" target="_blank" class="header-subtext"> — к изданию</a></h1>
+
+</header>
+
+<main>
+  <div class="column" id="column1">
+    <input class="editor-header" id="title1" value="Чистовик">
+    <div class="editor-wrapper">
+      <textarea id="editor1"></textarea>
+    </div>
+  </div>
+  <div class="column" id="column2">
+    <input class="editor-header" id="title2" value="Черновик">
+    <div class="editor-wrapper">
+      <textarea id="editor2"></textarea>
+    </div>
+  </div>
+  <div class="column" id="column3">
+    <input class="editor-header" id="title3" value="Заметки">
+    <div class="editor-wrapper">
+      <textarea id="editor3"></textarea>
+    </div>
+  </div>
+</main>
+
+<!-- Модальное окно -->
+<div id="confirmModal" class="modal">
+    <div class="modal-content">
+      <span class="close-button" id="modalClose">&times;</span>
+      <p>Скопировать чистовик в буфер обмена и перейти к изданию?</p>
+      <div class="modal-buttons">
+        <button id="confirmYes">Скопировать и перейти</button>
+        <button id="confirmNo">Перейти</button>
+      </div>
+    </div>
+  </div>
+  
+  
+
+<script src="https://unpkg.com/easymde/dist/easymde.min.js"></script>
+<script>
+    const defaultTexts = {
+quillwrite_editor1: `***Добро пожаловать в Quillfic — рукопись!***
+    
+Это простой редактор текста, разделённый на 3 части. Помогает одновременно держать перед глазами уже законченную часть, черновик для будущих строчек, и заметки насчёт фанфика.
+    
+Как чистовик полностью закончен, можно перейти к "изданию" по кнопке возле названия, чтобы автоматически отполировать форматирование - всякие кавычки-ёлочки, тире, многоточия и скопировать пост, который можно будет сразу вставить на Фикбук, Telegra.ph, Фанфикус, Ваттпад, Хойолаб или ещё куда.
+    
+---
+    
+**Пример:**
+    
+**Площадь Мондштадта дышала покоем.** Над каменными плитами скользил *лёгкий ветер*, рассыпая в воздухе запах свежего хлеба и цветущих одуванчиков. Фонтаны тихо журчали, отражая рваные облака -- как будто небо само раздумывало. -- "Пора бы дождю," -- будто подсказывал сырой аромат в тени под арками. Всё замирало, _не спеша дышать_.
+    
+**Торговые лавки опустели**, и только колокольчик над домом алхимика звенел с ленцой, точно зевал. Где-то в переулке хлопнула дверь -- *всё остальное было неподвижным*. -- "Скоро вечер", -- как бы намекали вытянутые тени. **Звук шагов**, далекий смех, звон фарфора -- и снова тишина. Всё как надо.`,
+    
+quillwrite_editor2: `Сделав лёгкую паузу, чуть наклонилась, глядя прямо на него, и с довольной полуулыбкой добавила:  
+—  (что-нибудь хитро-остроумное, додумывая реплику за него, не оставляя шанса ответить)
+    
+---
+    
+Он поднялся, оделся быстро и по привычке — собранно, почти как по уставу. В простом укороченном хакама цвета тёплого дерева — летнем, чуть ниже колена — и белой рубашке он выглядел скорее как временный посетитель, чем как жилец. Но по факту, он действительно жил здесь. Уже третий день.
+───  
+_❧ хакама — свободные складчатые штаны, которые выглядят как длинная юбка._
+    
+---
+    
+про что ещё можно написать:
+    
+1. яэ потянется
+2. будет читать книгу
+3. чихнёт`,
+    
+quillwrite_editor3: `*Используйте \`- [ ]\` с новой строки, чтобы создать чекбокс. Их можно отмечать, кликнув мышкой по скобочкам.*
+    
+**Пример:**
+    
+- [x] перефразировать "всё было сделано, как следует" покрасивее
+- [x] не "впервые за долгое время поймал себя на мысли", а как-нибудь покрасивее - чтобы ощущалось, что впереди ждёт лучшее будущее
+- [x] иназума или инадзума
+- [ ] вписать часть про то, что действие происходит летом 
+- [x] попробовать вписать цитату про поднос в описание
+- [ ] использовать: Поднос с сакэ — по-прежнему — держался героем.
+- [x] Ни писем, ни черновиков, ни восклицаний вроде "У нас опять дедлайн?!"
+    
+---
+    
+# издательский дом яэ:
+    
+на русском почти нет информации(
+    
+https://genshin-impact.fandom.com/wiki/Yae_Publishing_House
+    
+## районы инадзумы
+    
+- https://genshin-impact.fandom.com/wiki/Hanamizaka
+- https://genshin-impact.fandom.com/wiki/Tenshukaku
+- https://genshin-impact.fandom.com/wiki/Tenryou`
+    };
+    
+    let editor1Instance;
+    
+    function updateTaskClasses(editor) {
+      const doc = editor.codemirror.getDoc();
+      const totalLines = doc.lineCount();
+      
+      for (let i = 0; i < totalLines; i++) {
+        const lineContent = doc.getLine(i);
+        const lineHandle = doc.getLineHandle(i);
+    
+        if (/- \[x\]/.test(lineContent)) {
+          editor.codemirror.addLineClass(lineHandle, "wrap", "cm-task-checked");
+        } else {
+          editor.codemirror.removeLineClass(lineHandle, "wrap", "cm-task-checked");
+        }
+      }
+    }
+    
+    function setupEditor(id, titleId, storageKey) {
+      const easyMDE = new EasyMDE({
+        element: document.getElementById(id),
+        autosave: { enabled: false },
+        spellChecker: false,
+        placeholder: "Начните писать...",
+        renderingConfig: { singleLineBreaks: false, codeSyntaxHighlighting: true },
+        toolbar: ["bold", "italic", "strikethrough", "heading", "|", "unordered-list", "ordered-list", "preview"],
+        status: false,
+        previewRender: function(plainText) {
+  let processedText = plainText;
+
+  // Замена трех точек на многоточие
+  processedText = processedText.replace(/\.{3}/g, '…');
+
+  // Умная замена кавычек " " на « »
+  let isOpen = true;
+  processedText = processedText.replace(/"/g, function() {
+    const quote = isOpen ? '«' : '»';
+    isOpen = !isOpen;
+    return quote;
+  });
+
+  // Замена двойных дефисов на длинное тире, но не тройных дефисов
+  processedText = processedText.replace(/(^|[^-])--(?!-)/g, '$1—');
+
+  // ВАЖНО: оставляем "---" как разделитель, если он стоит сам на строке
+  // Ничего менять здесь не нужно: тройные дефисы сами не попадут под правило выше
+
+  // И возвращаем через markdown-парсер
+  return marked.parse(processedText);
+}
+      });
+    
+      if (id === 'editor1') {
+  editor1Instance = easyMDE; // сохраняем отдельно экземпляр для чистовика
+
+  const toolbar = document.querySelector('#' + id).parentElement.querySelector('.editor-toolbar');
+  if (toolbar) {
+    toolbar.style.display = 'flex';
+    toolbar.style.alignItems = 'center';
+
+    // создаём контейнер для всех кнопок + вопроса
+    const spacer = document.createElement('div');
+    spacer.style.marginLeft = 'auto'; // отправляем вправо
+    spacer.style.display = 'flex';
+    spacer.style.alignItems = 'center';
+
+    // создаём сам вопросик
+    const tooltip = document.createElement('span');
+    tooltip.className = 'tooltip';
+    tooltip.innerHTML = `? 
+      <span class="tooltiptext">
+      жирный текст — двойные **звёздочки**<br>
+      курсив — одиночные _подчёркивания_ или *звёздочки*<br>
+      тире — два дефиса "--"<br>
+      разделитель — три дефиса "---", отделённые пустыми строками
+      </span>`;
+
+    spacer.appendChild(tooltip);
+    toolbar.appendChild(spacer); // добавляем в конец тулбара
+  }
+}
+
+
+    
+      let savedContent = localStorage.getItem(storageKey);
+      if (!savedContent || savedContent.trim() === '') {
+        savedContent = defaultTexts[storageKey] || '';
+        localStorage.setItem(storageKey, savedContent);
+      }
+      easyMDE.value(savedContent);
+    
+      easyMDE.codemirror.on('change', () => {
+        localStorage.setItem(storageKey, easyMDE.value());
+        updateTaskClasses(easyMDE);
+      });
+    
+      easyMDE.codemirror.getWrapperElement().addEventListener('click', function (event) {
+        const pos = easyMDE.codemirror.coordsChar({ left: event.clientX, top: event.clientY });
+        const token = easyMDE.codemirror.getTokenAt(pos);
+    
+        if (token.string === '[' || token.string === 'x' || token.string === ' ') {
+          const lineContent = easyMDE.codemirror.getLine(pos.line);
+          const checkboxPattern = /(\s*)- \[( |x)\] (.*)/;
+          const match = lineContent.match(checkboxPattern);
+          if (match) {
+            const newState = match[2] === ' ' ? 'x' : ' ';
+            const newLine = `${match[1]}- [${newState}] ${match[3]}`;
+            easyMDE.codemirror.replaceRange(newLine, {line: pos.line, ch: 0}, {line: pos.line, ch: lineContent.length});
+            updateTaskClasses(easyMDE);
+            event.preventDefault();
+          }
+        }
+      });
+    
+      const titleInput = document.getElementById(titleId);
+      titleInput.value = localStorage.getItem(storageKey + "_title") || titleInput.value;
+      titleInput.addEventListener('input', () => {
+        localStorage.setItem(storageKey + "_title", titleInput.value);
+      });
+    
+      updateTaskClasses(easyMDE);
+    }
+    
+    // Инициализация редакторов
+    setupEditor('editor1', 'title1', 'quillwrite_editor1');
+    setupEditor('editor2', 'title2', 'quillwrite_editor2');
+    setupEditor('editor3', 'title3', 'quillwrite_editor3');
+    </script>
+    
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const link = document.querySelector('.header-subtext');
+      const modal = document.getElementById('confirmModal');
+      const yesButton = document.getElementById('confirmYes');
+      const noButton = document.getElementById('confirmNo');
+      const closeButton = document.getElementById('modalClose');
+    
+      link.addEventListener('click', function(event) {
+        event.preventDefault();
+        modal.style.display = 'block';
+      });
+    
+      yesButton.addEventListener('click', function() {
+        const editorText = editor1Instance.codemirror.getValue();
+        const tempTextarea = document.createElement('textarea');
+        tempTextarea.value = editorText;
+        document.body.appendChild(tempTextarea);
+        tempTextarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(tempTextarea);
+    
+        window.open('https://mellistea.github.io/Quillfic/Polisher', '_blank');
+        modal.style.display = 'none';
+      });
+    
+      noButton.addEventListener('click', function() {
+        window.open('https://mellistea.github.io/Quillfic/Polisher', '_blank');
+        modal.style.display = 'none';
+      });
+    
+      closeButton.addEventListener('click', function() {
+        modal.style.display = 'none';
+      });
+    
+      window.addEventListener('click', function(event) {
+        if (event.target === modal) {
+          modal.style.display = 'none';
+        }
+      });
+    });
+    document.addEventListener('DOMContentLoaded', function() {
+  const tooltips = document.querySelectorAll('.tooltip');
+
+  tooltips.forEach(tooltip => {
+    const text = tooltip.querySelector('.tooltiptext');
+    
+    tooltip.addEventListener('mouseenter', function(event) {
+      const rect = tooltip.getBoundingClientRect();
+      text.style.top = (rect.bottom + 5) + 'px'; // чуть ниже вопроса
+      text.style.left = (rect.left + rect.width / 2) + 'px'; // по центру вопроса
+      text.style.transform = 'translateX(-50%)';
+      text.style.opacity = '1';
+      text.style.visibility = 'visible';
+    });
+
+    tooltip.addEventListener('mouseleave', function() {
+      text.style.opacity = '0';
+      text.style.visibility = 'hidden';
+    });
+  });
+});
+
+    </script>
+    
+    
+
+    
+  
+
+</body>
+</html>
