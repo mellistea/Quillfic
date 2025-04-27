@@ -688,6 +688,13 @@ header h1 {
   font-size: 16px;
   white-space: nowrap;
 }
+#clearContainer {
+  position: absolute;
+  left: 33%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
 
 
   </style>
@@ -699,13 +706,24 @@ header h1 {
   <header>
     <h1>Quillfic<span class="header-ru">, рукопись</span><a href="https://mellistea.github.io/Quillfic/Polisher" target="_blank" class="header-subtext"> — к изданию</a></h1>
   
+    <div id="clearContainer" style="position: absolute; left: 33%; top: 50%; transform: translate(-50%, -50%);">
+      <button id="clearBtn" title="Очистить" style="background: none; border: none; cursor: pointer; padding: 5px;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m14.622 17.897-10.68-2.913"/>
+          <path d="M18.376 2.622a1 1 0 1 1 3.002 3.002L17.36 9.643a.5.5 0 0 0 0 .707l.944.944a2.41 2.41 0 0 1 0 3.408l-.944.944a.5.5 0 0 1-.707 0L8.354 7.348a.5.5 0 0 1 0-.707l.944-.944a2.41 2.41 0 0 1 3.408 0l.944.944a.5.5 0 0 0 .707 0z"/>
+          <path d="M9 8c-1.804 2.71-3.97 3.46-6.583 3.948a.507.507 0 0 0-.302.819l7.32 8.883a1 1 0 0 0 1.185.204C12.735 20.405 16 16.792 16 15"/>
+        </svg>
+      </button>
+    </div>
+    
+  
     <div class="header-center">
       <div id="clock" class="clock"></div>
     </div>
+  
     <div id="reminder">
       Вы не сохранялись более 5 минут!
     </div>
-    
   
     <div class="header-buttons">
       <button id="saveBtn" title="Сохранить">
@@ -759,6 +777,18 @@ header h1 {
       </div>
     </div>
   </div>
+  <!-- Модальное окно для очистки -->
+<div id="clearModal" class="modal">
+  <div class="modal-content">
+    <span class="close-button" id="clearModalClose">&times;</span>
+    <p>Очистить все блоки? Это действие невозможно отменить.</p>
+    <div class="modal-buttons">
+      <button id="clearYes">Да</button>
+      <button id="clearNo">Нет</button>
+    </div>
+  </div>
+</div>
+
   
   
 
@@ -779,7 +809,13 @@ quillwrite_editor1: `***Добро пожаловать в Quillfic — руко
     
 **Торговые лавки опустели**, и только колокольчик над домом алхимика звенел с ленцой, точно зевал. Где-то в переулке хлопнула дверь -- *всё остальное было неподвижным*. -- "Скоро вечер", -- как бы намекали вытянутые тени. **Звук шагов**, далекий смех, звон фарфора -- и снова тишина. Всё как надо.`,
     
-quillwrite_editor2: `Сделав лёгкую паузу, чуть наклонилась, глядя прямо на него, и с довольной полуулыбкой добавила:  
+quillwrite_editor2: `*Блок черновика. Здесь можно работать над будущими строчками перед тем, как перенести их в чистовик.*
+
+---
+
+**Пример:**
+
+Сделав лёгкую паузу, чуть наклонилась, глядя прямо на него, и с довольной полуулыбкой добавила:  
 —  (что-нибудь хитро-остроумное, додумывая реплику за него, не оставляя шанса ответить)
     
 ---
@@ -796,7 +832,7 @@ _❧ хакама — свободные складчатые штаны, кот
 2. будет читать книгу
 3. чихнёт`,
     
-quillwrite_editor3: `*Используйте \`- [ ]\` с новой строки, чтобы создать чекбокс. Их можно отмечать, кликнув мышкой по скобочкам.*
+quillwrite_editor3: `*Второк блок черновика. Используйте \`- [ ]\` с новой строки, чтобы создать чекбокс. Их можно отмечать, кликнув мышкой по скобочкам.*
     
 **Пример:**
     
@@ -1149,6 +1185,62 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 5 * 60 * 1000);
   });
   </script>
+  <script>
+document.addEventListener('DOMContentLoaded', function() {
+  const clearBtn = document.getElementById('clearBtn');
+  const clearModal = document.getElementById('clearModal');
+  const clearYes = document.getElementById('clearYes');
+  const clearNo = document.getElementById('clearNo');
+  const clearModalClose = document.getElementById('clearModalClose');
+
+  clearBtn.addEventListener('click', function() {
+    clearModal.style.display = 'block';
+  });
+
+  clearYes.addEventListener('click', function() {
+    // Сначала сохранить файл
+    const data = {
+      editor1: editor1Instance.value(),
+      editor2: editor2Instance.value(),
+      editor3: editor3Instance.value(),
+      title1: document.getElementById('title1').value,
+      title2: document.getElementById('title2').value,
+      title3: document.getElementById('title3').value,
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'quillfic_backup_before_clear.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    // Потом очистить все редакторы
+    editor1Instance.value('');
+    editor2Instance.value('');
+    editor3Instance.value('');
+
+    clearModal.style.display = 'none';
+  });
+
+  clearNo.addEventListener('click', function() {
+    clearModal.style.display = 'none';
+  });
+
+  clearModalClose.addEventListener('click', function() {
+    clearModal.style.display = 'none';
+  });
+
+  window.addEventListener('click', function(event) {
+    if (event.target === clearModal) {
+      clearModal.style.display = 'none';
+    }
+  });
+});
+</script>
+
   
   
       
