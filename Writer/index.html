@@ -700,8 +700,47 @@ header h1 {
   text-decoration: underline; /* если хочешь подчеркнутый эффект */
   color: #80bfff; /* мягкий голубой оттенок для ссылок, можно поменять */
 }
+/* Стили для инлайн кода */
+.editor-preview code {
+  background-color: #333; /* темно-серый фон */
+  color: #f0f0f0; /* светлый текст */
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 0.95em;
+}
 
+/* Стили для блоков кода */
+.editor-preview pre {
+  background-color: #333;
+  color: #f0f0f0;
+  padding: 12px;
+  border-radius: 6px;
+  overflow-x: auto;
+  font-family: monospace;
+  font-size: 0.95em;
+}
 
+/* Чтобы внутри <pre> тоже код был нормальный */
+.editor-preview pre code {
+  background: none;
+  color: inherit;
+  padding: 0;
+  font-size: inherit;
+}
+/* Стили скроллбара для блока кода */
+.editor-preview pre::-webkit-scrollbar {
+  height: 8px;
+}
+
+.editor-preview pre::-webkit-scrollbar-track {
+  background: #2b2b2b;
+}
+
+.editor-preview pre::-webkit-scrollbar-thumb {
+  background-color: #555;
+  border-radius: 4px;
+}
   </style>
   
 </head>
