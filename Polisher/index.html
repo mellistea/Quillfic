@@ -455,7 +455,7 @@ if (savedIndentMode === '1') {
             return result;
           }
     
-function updateFormatted() {
+          function updateFormatted() {
     const raw = input.value;
     localStorage.setItem('savedText', raw);
 
@@ -465,30 +465,44 @@ function updateFormatted() {
     const divider = dividerInput.value.trim() || '─── ⊹⊱✿⊰⊹ ───';
 
     formatted.querySelectorAll('p').forEach(p => {
-        const text = p.textContent.trim();
-        
         // Удаляем все существующие табы
         const existingTabs = p.querySelectorAll('.real-tab');
         existingTabs.forEach(tab => tab.remove());
-        
-        if (text === divider) {
+
+        if (p.textContent.trim() === divider) {
             p.style.textAlign = 'center';
         } else {
             p.style.textAlign = currentAlign;
-            
-            // Добавляем таб только если режим включен
+
             if (addIndentMode) {
-                const tabSpan = document.createElement('span');
-                tabSpan.className = 'real-tab';
-                tabSpan.style.whiteSpace = 'pre';
-                tabSpan.textContent = '\t';
-                p.insertBefore(tabSpan, p.firstChild);
+                // Обрабатываем каждую строку отдельно
+                const lines = p.innerHTML.split('<br>'); // Предполагаем, что переносы внутри <p> это <br>
+
+                const updatedLines = lines.map(line => {
+                    const plainLine = line.replace(/<[^>]+>/g, '').trim(); // убираем теги для чистоты проверки
+                    if (
+                        plainLine === divider ||
+                        plainLine === '───' ||
+                        plainLine.startsWith('❧ ') ||
+                        plainLine === ''
+                    ) {
+                        return line; // не добавляем таб
+                    }
+
+                    // Добавляем таб
+                    return '<span class="real-tab" style="white-space:pre;">\t</span>' + line.trimStart();
+                    // Версия с широким японским пробелом:
+                    // return '<span class="real-tab" style="white-space:pre;">\u3000</span>' + line.trimStart();
+                });
+
+                p.innerHTML = updatedLines.join('<br>');
             }
         }
     });
 
     updateReadingTime();
 }
+
 
 document.getElementById('addIndent').addEventListener('click', function() {
     addIndentMode = !addIndentMode;
