@@ -351,7 +351,8 @@ header h1 {
               </svg>
             </span>
             <span class="tooltiptext">
-              Включить/выключить красные строки
+              Включить/выключить красные строки<br>
+              С выравниванием по ширине страницы красные строки могут выглядеть неодинаково. Это зависит от сайта
             </span>
           </button>
           
@@ -493,6 +494,11 @@ if (savedIndentMode === '1') {
                     return '<span class="real-tab" style="white-space:pre;">\t</span>' + line.trimStart();
                     // Версия с широким японским пробелом:
                     // return '<span class="real-tab" style="white-space:pre;">\u3000</span>' + line.trimStart();
+                    // Версия с табом:
+                    // return '<span class="real-tab" style="white-space:pre;">\t</span>' + line.trimStart();
+                    // версия с реальным отступом через стили:
+                    // return '<span class="real-tab" style="display:inline-block; width: 1.5em;"></span>' + line.trimStart();
+
                 });
 
                 p.innerHTML = updatedLines.join('<br>');
