@@ -472,6 +472,7 @@ if (savedIndentMode === '1') {
 
         if (p.textContent.trim() === divider) {
             p.style.textAlign = 'center';
+            p.classList.add('divider'); // ← добавляем класс
         } else {
             p.style.textAlign = currentAlign;
 
@@ -505,6 +506,13 @@ if (savedIndentMode === '1') {
             }
         }
     });
+
+    // Оборачиваем весь текст в <div class="fanfic">
+const wrapper = document.createElement('div');
+wrapper.className = 'fanfic';
+wrapper.innerHTML = formatted.innerHTML;
+formatted.innerHTML = '';
+formatted.appendChild(wrapper);
 
     updateReadingTime();
 }
