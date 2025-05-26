@@ -572,11 +572,11 @@
          let text = formatted.innerText || '';
 
          // Убираем разделители из текста
-         if (divider) {
-           const escapedDivider = divider.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-           const dividerRegex = new RegExp(escapedDivider, 'g');
-           text = text.replace(dividerRegex, '');
-         }
+         // if (divider) {
+         //   const escapedDivider = divider.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+         //   const dividerRegex = new RegExp(escapedDivider, 'g');
+         //   text = text.replace(dividerRegex, '');
+         // }
 
          const cleanedText = text.trim();
          const words = cleanedText.split(/\s+/).filter(w => w.length > 0).length;
@@ -592,12 +592,12 @@
         ⏱ Время чтения: ~${minutes} мин · 
         <span class="tooltip">${pagesFicbook} стр.
           <span class="tooltiptext">
-            Рассчитано примерно.
+            Рассчитано примерно. 
+            140 симв./строка, 40 строк/стр.
     
             ─── ⊹⊱✿⊰⊹ ───
     
             Слов: ${wordsFormatted}; Символов: ${charactersFormatted} 
-            Без учёта разделителей
           </span>
         </span>
       `;
